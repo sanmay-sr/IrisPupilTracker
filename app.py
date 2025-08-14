@@ -20,12 +20,75 @@ st.set_page_config(
     page_title="Iris-Pupil Ratio Analyzer",
     page_icon="🔬",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"  # Better for mobile
 )
 
-# Enhanced Custom CSS for professional styling
+# Enhanced Custom CSS for professional styling with mobile responsiveness
 st.markdown("""
 <style>
+    /* Mobile-first responsive design */
+    @media (max-width: 768px) {
+        .main-header {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .main-header h1 {
+            font-size: 1.8rem;
+        }
+        .main-header p {
+            font-size: 1rem;
+        }
+        .metric-card {
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+        .metric-card h3 {
+            font-size: 1.4rem;
+        }
+        .section-header {
+            padding: 0.8rem 1rem;
+            margin: 1rem 0 0.5rem 0;
+        }
+        .section-header h2 {
+            font-size: 1.2rem;
+        }
+        .warning-box, .success-box, .info-box {
+            padding: 1rem;
+            margin: 0.8rem 0;
+        }
+        .footer {
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        .footer h4 {
+            font-size: 1.1rem;
+        }
+        .footer p, .footer small {
+            font-size: 0.85rem;
+        }
+        .camera-instructions {
+            padding: 1rem;
+        }
+        .camera-instructions ul {
+            padding-left: 1.2rem;
+        }
+        .camera-instructions li {
+            font-size: 0.9rem;
+            margin: 0.2rem 0;
+        }
+    }
+    
+    /* Tablet adjustments */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .main-header h1 {
+            font-size: 2.2rem;
+        }
+        .metric-card h3 {
+            font-size: 1.6rem;
+        }
+    }
+    
+    /* Base styles */
     .main-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 2rem;
@@ -159,10 +222,45 @@ st.markdown("""
         border-radius: 8px;
         font-weight: 600;
         transition: all 0.2s ease;
+        min-height: 44px; /* Mobile touch target size */
     }
     .stButton > button:hover {
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Mobile-specific improvements */
+    @media (max-width: 768px) {
+        .stButton > button {
+            width: 100%;
+            margin: 0.3rem 0;
+        }
+        .stRadio > div {
+            flex-direction: column;
+        }
+        .stRadio > div > label {
+            margin: 0.2rem 0;
+        }
+        .stFileUploader > div {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .stTextInput > div > div > input,
+        .stNumberInput > div > div > input,
+        .stSelectbox > div > div > div > div {
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+    }
+    
+    /* Touch-friendly improvements */
+    @media (hover: none) and (pointer: coarse) {
+        .metric-card:hover {
+            transform: none;
+        }
+        .stButton > button:hover {
+            transform: none;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -534,10 +632,10 @@ def create_pdf_report(patient_info, analysis_results, original_image=None):
         story.append(annotated_table)
         story.append(Spacer(1, 15))
         
-        # Add legend
+                # Add legend
         legend_text = "Legend: Red circle = Iris boundary, Green circle = Pupil boundary"
         story.append(Paragraph(legend_text, ParagraphStyle('Legend', parent=styles['Normal'], 
-                                                          fontSize=9, textColor=colors.grey, alignment=1)))
+                                                         fontSize=9, textColor=colors.grey, alignment=1)))
         
         story.append(Spacer(1, 20))
     
@@ -570,6 +668,8 @@ def main():
     <div class="main-header">
         <h1>Iris-Pupil Ratio Analyzer</h1>
         <p>Advanced Computer Vision Analysis for Research & Educational Purposes</p>
+        <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+        </div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -591,7 +691,13 @@ def main():
         <h2>Patient Information</h2>
     </div>
     """, unsafe_allow_html=True)
-    st.sidebar.markdown("Complete the form below to generate a professional analysis report.")
+    
+    # Mobile-friendly instructions
+    st.sidebar.markdown("""
+    <div style="font-size: 0.9rem; color: #6c757d; margin-bottom: 1rem;">
+        Complete the form below to generate a professional analysis report.
+    </div>
+    """, unsafe_allow_html=True)
     
     with st.sidebar.form("patient_form"):
         name = st.text_input("Full Name", placeholder="Enter patient's full name", 
@@ -611,8 +717,9 @@ def main():
         elif submit_info and not name:
             st.sidebar.error("Please enter the patient's name.")
     
-    # Main content area
-    col1, col2 = st.columns([1, 1])
+    # Main content area - responsive layout
+    # Use responsive columns that stack on mobile
+    col1, col2 = st.columns([1, 1], gap="medium")
     
     with col1:
         st.markdown("""
@@ -649,16 +756,19 @@ def main():
                     <li>Click the <strong>'Take photo'</strong> button in the camera widget to capture</li>
                     <li>Use 'Reset Camera' to start over if needed</li>
                 </ul>
-                
-                <div style="margin-top: 1rem; padding: 1rem; background-color: #fff3cd; border-radius: 5px; border: 1px solid #ffeaa7;">
-                    <strong>Camera Permission Note:</strong> If you see "Camera access denied", please:
-                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
-                        <li>Check your browser's camera permissions (lock icon in address bar)</li>
-                        <li>Allow camera access when prompted</li>
-                        <li>Refresh the page after granting permissions</li>
-                        <li>Try using a different browser if issues persist</li>
-                    </ul>
-                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Camera permission note in a separate markdown call
+            st.markdown("""
+            <div class="warning-box">
+                <strong>Camera Permission Note:</strong> If you see "Camera access denied", please:
+                <ul>
+                    <li>Check your browser's camera permissions (lock icon in address bar)</li>
+                    <li>Allow camera access when prompted</li>
+                    <li>Refresh the page after granting permissions</li>
+                    <li>Try using a different browser if issues persist</li>
+                </ul>
             </div>
             """, unsafe_allow_html=True)
             
@@ -697,15 +807,16 @@ def main():
                     st.session_state['camera_active'] = False
                     st.rerun()
             
-            col_cam1, col_cam2 = st.columns(2)
+            # Camera control buttons - responsive layout
+            col_cam1, col_cam2 = st.columns(2, gap="small")
             
             with col_cam1:
-                if st.button("Start Live Camera", type="secondary"):
+                if st.button("Start Live Camera", type="secondary", use_container_width=True):
                     st.session_state['camera_active'] = True
                     st.rerun()
             
             with col_cam2:
-                if st.button("Reset Camera", type="secondary"):
+                if st.button("Reset Camera", type="secondary", use_container_width=True):
                     st.session_state['camera_active'] = False
                     if 'captured_image' in st.session_state:
                         del st.session_state['captured_image']
@@ -762,10 +873,11 @@ def main():
         if 'analysis_results' in st.session_state:
             results = st.session_state['analysis_results']
             
-            # Display results with enhanced styling
+            # Display results with enhanced styling - responsive layout
             if results['left_eye']:
                 st.markdown("### Left Eye Analysis")
-                col_l1, col_l2, col_l3 = st.columns(3)
+                # Use responsive columns that stack on mobile
+                col_l1, col_l2, col_l3 = st.columns(3, gap="small")
                 with col_l1:
                     st.markdown(f"""
                     <div class="metric-card">
@@ -793,7 +905,8 @@ def main():
             
             if results['right_eye']:
                 st.markdown("### Right Eye Analysis")
-                col_r1, col_r2, col_r3 = st.columns(3)
+                # Use responsive columns that stack on mobile
+                col_r1, col_r2, col_r3 = st.columns(3, gap="small")
                 with col_r1:
                     st.markdown(f"""
                     <div class="metric-card">

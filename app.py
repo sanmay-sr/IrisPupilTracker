@@ -219,41 +219,18 @@ def capture_photo():
 
 def start_live_camera():
     """Start live camera stream for preview"""
-    cap = cv.VideoCapture(0)
-    if not cap.isOpened():
-        return None, "Camera access denied. Please check your browser camera permissions and refresh the page."
-    
-    # Set camera properties for better quality
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, 1280)
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 720)
-    
-    return cap, None
+    # This function is now simplified - just returns success
+    return True, None
 
 def get_live_frame(cap):
     """Get a single frame from the live camera stream"""
-    if cap is None:
-        return None, "Camera not initialized"
-    
-    try:
-        ret, frame = cap.read()
-        if not ret:
-            return None, "Failed to capture frame"
-        
-        # Flip the frame horizontally for a more intuitive experience
-        frame = cv.flip(frame, 1)
-        
-        # Convert OpenCV frame to PIL Image
-        frame_rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-        pil_image = Image.fromarray(frame_rgb)
-        return pil_image, None
-        
-    except Exception as e:
-        return None, f"Camera error: {str(e)}"
+    # This function is no longer needed with st.camera_input
+    return None, "Function deprecated - using Streamlit camera widget"
 
 def stop_live_camera(cap):
     """Stop and release the camera stream"""
-    if cap is not None:
-        cap.release()
+    # This function is no longer needed with st.camera_input
+    pass
 
 def process_iris_analysis(image, mp_face_mesh, face_mesh):
     """Process iris analysis on the uploaded image"""
@@ -703,39 +680,22 @@ def main():
             # Camera preview area
             preview_placeholder = st.empty()
             
-            # Initialize camera in session state if not exists
-            if 'camera_cap' not in st.session_state:
-                st.session_state['camera_cap'] = None
+            # Camera session state is no longer needed with st.camera_input
             
             # Show live camera preview when active
             if camera_status:
-                # Start camera if not already started
-                if st.session_state['camera_cap'] is None:
-                    cap, error = start_live_camera()
-                    if error:
-                        st.error(error)
-                        st.session_state['camera_active'] = False
-                    else:
-                        st.session_state['camera_cap'] = cap
+                # Use Streamlit's native camera widget
+                camera_photo = st.camera_input("Live Camera Stream", key="live_camera")
                 
-                # Show live video stream
-                if st.session_state['camera_cap'] is not None:
-                    # Create a live video stream using st.camera_input
-                    camera_photo = st.camera_input("Live Camera Stream", key="live_camera")
-                    
-                    if camera_photo is not None:
-                        # Convert to PIL Image for consistency
-                        captured_image = Image.open(camera_photo)
-                        st.success("Photo captured successfully!")
-                        st.image(captured_image, caption="Captured Photo", use_container_width=True)
-                        # Store in session state for analysis
-                        st.session_state['captured_image'] = captured_image
-                        st.session_state['camera_active'] = False
-                        # Stop camera after capture
-                        if st.session_state['camera_cap'] is not None:
-                            stop_live_camera(st.session_state['camera_cap'])
-                            st.session_state['camera_cap'] = None
-                        st.rerun()
+                if camera_photo is not None:
+                    # Convert to PIL Image for consistency
+                    captured_image = Image.open(camera_photo)
+                    st.success("Photo captured successfully!")
+                    st.image(captured_image, caption="Captured Photo", use_container_width=True)
+                    # Store in session state for analysis
+                    st.session_state['captured_image'] = captured_image
+                    st.session_state['camera_active'] = False
+                    st.rerun()
             
             col_cam1, col_cam2 = st.columns(2)
             
@@ -749,10 +709,6 @@ def main():
                     st.session_state['camera_active'] = False
                     if 'captured_image' in st.session_state:
                         del st.session_state['captured_image']
-                    if st.session_state['camera_cap'] is not None:
-                        stop_live_camera(st.session_state['camera_cap'])
-                        st.session_state['camera_cap'] = None
-                    preview_placeholder.empty()
                     st.rerun()
         
         # Handle image analysis

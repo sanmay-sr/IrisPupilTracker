@@ -184,7 +184,7 @@ def capture_photo():
     """Capture photo from webcam using OpenCV"""
     cap = cv.VideoCapture(0)
     if not cap.isOpened():
-        return None, "Unable to access the webcam. Please check your camera permissions."
+        return None, "Camera access denied. Please check your browser camera permissions and refresh the page."
     
     # Set camera properties for better quality
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 1280)
@@ -221,7 +221,7 @@ def start_live_camera():
     """Start live camera stream for preview"""
     cap = cv.VideoCapture(0)
     if not cap.isOpened():
-        return None, "Unable to access the webcam. Please check your camera permissions."
+        return None, "Camera access denied. Please check your browser camera permissions and refresh the page."
     
     # Set camera properties for better quality
     cap.set(cv.CAP_PROP_FRAME_WIDTH, 1280)
@@ -672,6 +672,16 @@ def main():
                     <li>Click the <strong>'Take photo'</strong> button in the camera widget to capture</li>
                     <li>Use 'Reset Camera' to start over if needed</li>
                 </ul>
+                
+                <div style="margin-top: 1rem; padding: 1rem; background-color: #fff3cd; border-radius: 5px; border: 1px solid #ffeaa7;">
+                    <strong>Camera Permission Note:</strong> If you see "Camera access denied", please:
+                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                        <li>Check your browser's camera permissions (lock icon in address bar)</li>
+                        <li>Allow camera access when prompted</li>
+                        <li>Refresh the page after granting permissions</li>
+                        <li>Try using a different browser if issues persist</li>
+                    </ul>
+                </div>
             </div>
             """, unsafe_allow_html=True)
             

@@ -5,7 +5,7 @@ secondaryBackgroundColor = "#F8F9FA"
 textColor = "#2C3E50"
 
 [server]
-maxUploadSize = 200
+maxUploadSize = 50
 headless = true
 enableCORS = false
 enableXsrfProtection = false
